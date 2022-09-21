@@ -23,12 +23,13 @@ public class Practica02 {
         int i = 0;
 
         while (i <= 6) {
-            elegidos.add(rnd.nextInt(48)+1);
-            i ++;
+
+            elegidos.add(rnd.nextInt(49) + 1);
+            i++;
         }
-        
+
         for (Integer elegido : elegidos) {
-            System.out.println(elegido+"\n");
+            System.out.println(elegido + "\n");
         }
 
     }
