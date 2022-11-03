@@ -1,5 +1,3 @@
 Tiburon;Steven Spielberg;124;Roy Scheider,Richard Dreyfuss;Oscar,BAFTA;2;
-Jurassic World;Steven Spielberg;124;Nick Robinson,Chris Prada;Oscar;4;
-juan;bob esponja;124;wenhui chen;shushiman;3;
-asdadsa;sdasdas;4;asdasd;asdasd;6;
-juan;billiao;6;wenhui chen;shushiman;4;
+juan;bob esponja;6;dfrgdfg;shushiman;4;
+asdadsa;sdasdas;10;asdasd;asdasd;4;
