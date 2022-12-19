@@ -5,11 +5,15 @@
 
 package es.iespuertodelacruz.alumno.competicion;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 /**
  *
- * @author dam2
+ * @author Raul Gonzalez Martin
  */
 public class Competicion {
 
@@ -19,15 +23,24 @@ public class Competicion {
         
         try{
             
-            proceso = Runtime.getRuntime().exec("java es.iespuertodelacruz.alumno.Suministrador");
+            Runtime.getRuntime().exec("rm /tmp/log.txt");
+            proceso = Runtime.getRuntime().exec("java main/java/es/iespuertodelacruz/alumno/competicion/Suministrador.java");
             procesos.add(proceso);
             
             for (int i = 0; i < 10; i++) {
-                proceso = Runtime.getRuntime().exec("java es.iespuertodelacruz.alumno.Competidor");
+                proceso = Runtime.getRuntime().exec("java main/java/es/iespuertodelacruz/alumno/competicion/Competidor.java Competidor"+i);
                 procesos.add(proceso);
             }
-        }catch(Exception e){
             
+            Thread.sleep(10000);
+            
+            for (Process proceso1 : procesos) {
+                Runtime.getRuntime().exec("kill "+ proceso1.pid());
+            }
+            
+            System.out.println(procesos);
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 }

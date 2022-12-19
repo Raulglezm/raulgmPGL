@@ -4,7 +4,10 @@
  */
 package es.iespuertodelacruz.alumno.competicion;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.util.Random;
@@ -22,29 +25,37 @@ public class Suministrador {
         File archivo = null;
         RandomAccessFile raf = null;
         FileLock bloqueo = null;
-
-        try {
+        
+        Random rnd = new Random();
+        
+        try ( PrintStream ps = new PrintStream(new BufferedOutputStream(new FileOutputStream(new File("/tmp/hola.txt"), true)), true);) {
+            
+            System.setOut(ps);
+            System.setErr(ps);
+            
             archivo = new File("/tmp/buffer.txt");
             raf = new RandomAccessFile(archivo, "rwd");
-            Random rnd = new Random();
             boolean continuar = true;
-            while (continuar){
+            while (continuar) {
                 bloqueo = raf.getChannel().lock();
                 System.out.println("Suministrado: ENTRA en la seccion critica");
-                if (raf.length() == 0){
+                if (raf.length() == 0) {
+                    
                     raf.seek(0);
-                    raf.writeInt(rnd.nextInt(5)+1);
-                    System.out.println("Suministrador: valor escrito %d. \n");
-                }else{
+                    String txt = java.util.UUID.randomUUID().toString() ;
+                    raf.writeChars(txt + " " + (rnd.nextInt(5) + 1));
+                    
+                    System.out.println("Suministrador: valor escrito "+txt+". \n");
+                } else {
                     System.out.println("Suministrador: no puede escribir");
                 }
-                
+
                 System.out.println("Suministrador: SALE sección crítica");
                 bloqueo.release();
             }
             raf.close();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
