@@ -37,7 +37,7 @@ public class Creackeador {
         LinkedList<String> contrasenias = new LinkedList();
 
         try {
-            File usuariosTxt = new File("/home/alumno/Escritorio/usuarios.txt");
+            File usuariosTxt = new File("/home/dam2/Escritorio/raulgmPGV/Creackeador/src/creackeador/usuarios.txt");
             FileReader fr = new FileReader(usuariosTxt);
             BufferedReader br = new BufferedReader(fr);
 
@@ -46,7 +46,7 @@ public class Creackeador {
                 usuarios.add(usuario);
             }
 
-            File contaseniasTxt = new File("/home/alumno/Escritorio/contrasenias.txt");
+            File contaseniasTxt = new File("/home/dam2/Escritorio/raulgmPGV/Creackeador/src/creackeador/contrasenias.txt");
             fr = new FileReader(contaseniasTxt);
             br = new BufferedReader(fr);
 
@@ -59,7 +59,7 @@ public class Creackeador {
 
         }
 
-        HebraCrackeadora[] hebras = new HebraCrackeadora[8];
+        HebraCrackeadora[] hebras = new HebraCrackeadora[1];
 
         for (int i = 0; i < hebras.length; i++) {
             HebraCrackeadora hebraCrackeadora = new HebraCrackeadora(usuarios.pop(), contrasenias);
@@ -81,11 +81,11 @@ public class Creackeador {
                 }
             }
         }
-
-        while(comprobarHebras(hebras)){
-            System.out.println("Esperando la finalizacion de las hebras restantes");
-            Thread.sleep(15);
+        
+        for (HebraCrackeadora hebra : hebras) {
+            hebra.join();
         }
+
         System.out.println("Finalizando App");
         System.exit(0);
     }
