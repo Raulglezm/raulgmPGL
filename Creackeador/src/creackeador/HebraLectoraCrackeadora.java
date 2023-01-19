@@ -35,6 +35,7 @@ public class HebraLectoraCrackeadora extends Thread{
             while(entrada.hasNext()){
                 texto = entrada.nextLine();
                 mensajes.add(texto);
+                System.out.println(texto);
             }
 
         }catch(IOException ex){

