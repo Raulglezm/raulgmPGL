@@ -44,7 +44,7 @@ public class Handler extends Thread {
                 out.println("Introduce un nick");
 
                 name = in.readLine();
-                
+
                 if (name == null) {
                     return;
                 }
@@ -61,11 +61,18 @@ public class Handler extends Thread {
 
             while (true) {
                 String input = in.readLine();
-                if (input == null) {
-                    return;
-                }
-                for (PrintWriter writer : writers) {
-                    writer.println("MENSAJE:  " + name + ": " + input);
+                if (input != null) {
+                    switch (input) {
+                        case "/quit":
+                            return; //Preguntar
+                        case "users":   
+                            break;
+                        default:
+                            for (PrintWriter writer : writers) {
+                                writer.println("MENSAJE:  " + name + ": " + input);
+                            }   
+                            break;
+                    }
                 }
             }
         } catch (IOException e) {
