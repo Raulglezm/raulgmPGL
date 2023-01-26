@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,12 +26,11 @@ public class ChatMultihilosServidor {
         System.out.println("El servidor esta corriendo");
         
         int PORT = 6667;
-        Set<String> names = new HashSet<>();
-        Set<PrintWriter> writers = new HashSet<>();
+        HashMap<String, PrintWriter> writers = new HashMap<>();
 
         try (ServerSocket listener = new ServerSocket(PORT)) {
             while (true) {
-                new Handler(listener.accept(), names, writers).start();
+                new Handler(listener.accept(),  writers).start();
             }
         }
     }
