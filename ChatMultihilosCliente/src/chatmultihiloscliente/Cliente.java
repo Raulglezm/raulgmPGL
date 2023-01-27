@@ -29,4 +29,6 @@ public class Cliente {
         this.lector.start();
         
     }
+    
+    
 }
