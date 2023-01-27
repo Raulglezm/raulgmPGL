@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -29,11 +30,13 @@ public class Handler extends Thread {
     private BufferedReader in;
     private PrintWriter out;
     private Boolean sesionIniciada;
+    private Boolean ping;
 
     public Handler(Socket socket, HashMap<String, PrintWriter> writers) {
         this.socket = socket;
-        this.writers = writers;
+        Handler.writers = writers;
         sesionIniciada = false;
+        ping = true;
     }
 
     /**
@@ -41,7 +44,7 @@ public class Handler extends Thread {
      *
      * @throws IOException
      */
-    public void login() throws IOException {
+    public void login() throws IOException, InterruptedException {
         String user;
         String password;
         String txt;
@@ -71,12 +74,15 @@ public class Handler extends Thread {
                         }
 
                     } catch (Exception ex) {
-                        ex.printStackTrace();
                         out.println("----------------------------------------------------------------------");
                         out.println("| Los datos introducidos son incorrectos pruebe /login user password |");
                         out.println("----------------------------------------------------------------------");
                     }
                 } else if (txt.equals("/quit")) {
+                    out.println("----------------------------");
+                    out.println("| Esperamos volver a verte |");
+                    out.println("----------------------------");
+                    Thread.sleep(1);
                     return;
                 } else {
                     out.println("-----------------------------------------------");
@@ -197,11 +203,60 @@ public class Handler extends Thread {
         try {
             out.println("USERLIST --> " + writers.keySet());
         } catch (Exception ex) {
-            ex.printStackTrace();
             out.println("------------------------------------------------------");
             out.println("| *Se ha producio un error al ejecutar -> /userlist* |");
             out.println("------------------------------------------------------");
         }
+    }
+
+    /**
+     * Metodo utilizado para mostrar a todos los usuarios un mensaje de
+     * despedida
+     */
+    public void quit() {
+        writers.keySet().forEach((clave) -> {
+            if (!clave.equals(nick)) {
+                PrintWriter receptor = writers.get(clave);
+                receptor.println("SYSTEM --> El usuario " + nick + " ha abandonado el chat");
+            } else {
+                out.println(" *Esperamos volver a verte* ");
+            }
+        });
+    }
+
+    public void ping(String input) {
+
+        try {
+            switch (input.split(" ")[1]) {
+                case "off":
+                    this.ping = false;
+                    out.println(" *El ping se encuentra deshabilitado* ");
+                    break;
+                case "on":
+                    this.ping = true;
+                    out.println(" *El ping se encuentra habilitado* ");
+                    break;
+                default:
+                    String destinatario = input.split(" ")[1];
+                    String uuid = input.substring(input.indexOf(destinatario) + destinatario.length() + 1);
+                    for (String clave : writers.keySet()) {
+                        if (clave.equals(destinatario)) {
+                            writers.get(clave).println("/ping" + " <-- " + nick + ": " + uuid);
+                            out.println("ping --> " + clave + ": " + uuid);
+                        }
+                    }
+                    break;
+            }
+        } catch (Exception ex) {
+            out.println("--------------------------------------------------");
+            out.println("| *Se ha producio un error al ejecutar -> /ping* |");
+            out.println("| *RECUERDA QUE LOS POSIBLES COMANDOS PING SON:* |");
+            out.println("| *Deshabilitar ping -> /ping off              * |");
+            out.println("| *Habilitar ping -> /ping on                  * |");
+            out.println("| *Enviar ping -> /ping nick                   * |");
+            out.println("--------------------------------------------------");
+        }
+
     }
 
     public void chateando() throws IOException {
@@ -212,23 +267,21 @@ public class Handler extends Thread {
                     case "/":
                         comandos();
                         break;
-                    case "/nick":
+                    case "/nick": // cambia el nick si está disponible y es correcto y no es un usuario registrado, si no el servidor indicará sólo al usuario implicado que ese nick ya está en uso
                         nick(input);
                         break;
-                    case "/msg":
+                    case "/msg": // envía el mensaje sólamente al usuario luis si éste está conectado
                         msg(input);
                         break;
                     case "/userlist":
                         userList(input);
                         break;
-                    case "/ping nick":
+                    case "/ping":
+                        ping(input);
                         break;
-                    case "/ping on":
-                        break;
-                    case "/ping off":
-                        break;
-                    case "/quit":
-                        return; //Preguntar
+                    case "/quit": // el servidor desconecta al usuario del chat indicando a la sala *** el usuario pepe ha abandonado el chat
+                        quit();
+                        return;
                     default:
                         if (!input.startsWith("/")) {
                             for (String clave : writers.keySet()) {
@@ -278,6 +331,8 @@ public class Handler extends Thread {
 
         } catch (IOException e) {
             System.out.println(e);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (out != null) {
                 writers.remove(nick);
@@ -287,5 +342,9 @@ public class Handler extends Thread {
             } catch (IOException e) {
             }
         }
+    }
+
+    public Boolean getPing() {
+        return ping;
     }
 }
