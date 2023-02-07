@@ -237,14 +237,16 @@ public class Handler extends Thread {
                     out.println(" *El ping se encuentra habilitado* ");
                     break;
                 default:
+
                     String destinatario = input.split(" ")[1];
-                    String uuid = input.substring(input.indexOf(destinatario) + destinatario.length() + 1);
-                    for (String clave : writers.keySet()) {
-                        if (clave.equals(destinatario)) {
-                            writers.get(clave).println("/ping" + " <-- " + nick + ": " + uuid);
-                            out.println("ping --> " + clave + ": " + uuid);
-                        }
+                    String uuid = input.split(" ")[2];
+                    
+                    if (writers.containsKey(destinatario)) {
+                        
+                        writers.get(destinatario).println("/ping" + " <-- " + nick + ": " +uuid);
+                        out.println("ping --> " + destinatario + ": " + uuid);
                     }
+
                     break;
             }
         } catch (Exception ex) {
@@ -278,6 +280,14 @@ public class Handler extends Thread {
                         break;
                     case "/ping":
                         ping(input);
+                        break;
+                    case "/pong":
+                        String destinatario = input.split(" ")[1];
+                        if(ping){
+                             writers.get(destinatario).println(input);
+                        }else{
+                             writers.get(destinatario).println(nick + " tiene el ping deshabilitado");
+                        }
                         break;
                     case "/quit": // el servidor desconecta al usuario del chat indicando a la sala *** el usuario pepe ha abandonado el chat
                         quit();

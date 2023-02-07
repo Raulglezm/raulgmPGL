@@ -20,10 +20,12 @@ public class Lector extends Thread {
     private Socket socket;
     private boolean continuar;
     private Cliente cliente;
+    private Escritor escritor;
 
-    public Lector(Socket socket, Cliente cliente) throws IOException {
+    public Lector(Socket socket, Escritor escritor, Cliente cliente) throws IOException {
         this.socket = socket;
         this.cliente = cliente;
+        this.escritor = escritor;
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
@@ -40,7 +42,9 @@ public class Lector extends Thread {
                     System.out.println(mensaje);
                     continuar = false;
                     socket.close();
-                } else {
+                }else if(mensaje.startsWith("/ping <--")){
+                    escritor.pong("/pong --> "+mensaje.split(" ")[1] + " " + mensaje.split(" ")[2]);
+                }else{
                     System.out.println(mensaje);
                 }
             } catch (IOException ex) {

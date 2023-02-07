@@ -27,6 +27,10 @@ public class Escritor extends Thread {
         this.cliente = cliente;
         escritor = new PrintWriter(socket.getOutputStream(), true);
     }
+    
+    public void pong(String mensaje){
+        escritor.println(mensaje);
+    }
 
     @Override
     public void run() {
@@ -36,7 +40,13 @@ public class Escritor extends Thread {
             try {
                 BufferedReader teclado = new BufferedReader(new InputStreamReader(System.in));
                 mensaje = teclado.readLine();
+                
+                if(mensaje.startsWith("/ping")){
+                    mensaje += " "+java.util.UUID.randomUUID().toString();
+                }
+                
                 escritor.println(mensaje);
+                
                 if (mensaje.equals("/quit")) {
                     continuar = false;
                 }

@@ -25,7 +25,7 @@ public class Cliente {
         this.escritor = new Escritor(socket, this);
         this.escritor.start();
         
-        this.lector = new Lector(socket, this);
+        this.lector = new Lector(socket, escritor, this);
         this.lector.start();
         
     }
