@@ -3,25 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package passcracker;
+package crackeadordefinitivo;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 /**
  *
- * @author dam2
+ * @author alumno
  */
-public class hebraLectorCrackFTP extends Thread {
-    
-    LinkedList<String> entrada;
+public class HebraLectoraCrackeadora extends Thread{
+    LinkedList<String> mensajes;
     Socket canal;
-
-    public void hebraLectorCrackFTP(LinkedList<String> entrada, Socket canal){
-        this.entrada = entrada;
+    
+    public HebraLectoraCrackeadora(LinkedList<String> mensajes, Socket canal){
+        this.mensajes = mensajes;
         this.canal = canal;
     }
     
@@ -29,17 +29,17 @@ public class hebraLectorCrackFTP extends Thread {
     public void run(){
         
         String texto = "";
-        Scanner cn;
         try{
-            cn = new Scanner(canal.getInputStream());
-            while(cn.hasNext()){
-                texto = cn.nextLine();
-                entrada.add(texto);
+            Scanner entrada = new Scanner(canal.getInputStream());
+
+            while(entrada.hasNext()){
+                texto = entrada.nextLine();
+                mensajes.add(texto);
                 System.out.println(texto);
             }
+
         }catch(IOException ex){
             
         }
     }
-    
 }
